@@ -4,7 +4,6 @@ import static org.knowm.xchange.gemini.v1.GeminiAdapters.adaptTrades;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.MoreObjects;
 import info.bitrich.xchangestream.core.StreamingMarketDataService;
 import info.bitrich.xchangestream.gemini.dto.GeminiLimitOrder;
 import info.bitrich.xchangestream.gemini.dto.GeminiOrderbook;
@@ -20,6 +19,7 @@ import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.marketdata.Trade;
 import org.knowm.xchange.dto.trade.LimitOrder;
+import org.knowm.xchange.exceptions.NotAvailableFromExchangeException;
 import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
 import org.knowm.xchange.gemini.v1.dto.marketdata.GeminiTrade;
 import org.slf4j.Logger;
@@ -58,7 +58,7 @@ public class GeminiStreamingMarketDataService implements StreamingMarketDataServ
   @Override
   public Observable<OrderBook> getOrderBook(CurrencyPair currencyPair, Object... args) {
 
-    int maxDepth = (int) MoreObjects.firstNonNull(args.length > 0 ? args[0] : null, 0);
+    Integer maxDepth = args.length > 0 ? (Integer) args[0] : null;
 
     Observable<GeminiOrderbook> subscribedOrderbookSnapshot =
         service
@@ -105,27 +105,20 @@ public class GeminiStreamingMarketDataService implements StreamingMarketDataServ
 
   @Override
   public Observable<Ticker> getTicker(CurrencyPair currencyPair, Object... args) {
-    return PublishSubject.create(
-        emitter ->
-            getOrderBook(currencyPair, args)
-                .subscribe(
-                    orderBook -> {
-                      LimitOrder firstBid = orderBook.getBids().iterator().next();
-                      LimitOrder firstAsk = orderBook.getAsks().iterator().next();
-                      emitter.onNext(
-                          new Ticker.Builder()
-                              .currencyPair(currencyPair)
-                              .bid(firstBid.getLimitPrice())
-                              .bidSize(firstBid.getOriginalAmount())
-                              .ask(firstAsk.getLimitPrice())
-                              .askSize(firstAsk.getOriginalAmount())
-                              .timestamp(
-                                  firstBid.getTimestamp().after(firstAsk.getTimestamp())
-                                      ? firstBid.getTimestamp()
-                                      : firstAsk.getTimestamp())
-                              .build());
-                    },
-                    emitter::onError));
+    return PublishSubject
+        .create( emitter -> getOrderBook(currencyPair, args)
+            .subscribe( orderBook -> {
+              LimitOrder firstBid = orderBook.getBids().iterator().next();
+              LimitOrder firstAsk = orderBook.getAsks().iterator().next();
+              emitter.onNext(new Ticker.Builder()
+                  .instrument(currencyPair)
+                  .bid(firstBid.getLimitPrice())
+                  .bidSize(firstBid.getOriginalAmount())
+                  .ask(firstAsk.getLimitPrice())
+                  .askSize(firstAsk.getOriginalAmount())
+                  .timestamp(firstBid.getTimestamp().after(firstAsk.getTimestamp()) ? firstBid.getTimestamp() : firstAsk.getTimestamp())
+                  .build());
+            }));
   }
 
   @Override
