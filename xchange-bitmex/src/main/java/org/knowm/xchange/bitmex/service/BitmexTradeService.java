@@ -34,7 +34,6 @@ import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamLimit;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamOffset;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
-import org.knowm.xchange.service.trade.params.TradeHistoryParamsSorted;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamsTimeSpan;
 import org.knowm.xchange.service.trade.params.orders.DefaultOpenOrdersParam;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
@@ -194,13 +193,8 @@ public class BitmexTradeService extends BitmexTradeServiceRaw implements TradeSe
       }
     }
 
-    boolean reverse =
-        (params instanceof TradeHistoryParamsSorted)
-            && ((TradeHistoryParamsSorted) params).getOrder()
-            == TradeHistoryParamsSorted.Order.desc;
-
     List<UserTrade> userTrades =
-        getTradeHistory(symbol, null, null, count, start, reverse, startTime, endTime).stream()
+        getTradeHistory(symbol, null, null, count, start, true, startTime, endTime).stream()
             .map(BitmexAdapters::adoptUserTrade)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
