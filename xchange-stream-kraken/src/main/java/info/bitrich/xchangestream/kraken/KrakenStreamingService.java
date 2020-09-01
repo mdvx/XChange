@@ -59,6 +59,17 @@ public class KrakenStreamingService extends JsonNettyStreamingService {
     this.authData = authData;
   }
 
+  public KrakenStreamingService(
+      boolean isPrivate,
+      String uri,
+      int maxFramePayloadLength,
+      Duration connectionTimeout,
+      Duration retryDuration,
+      int idleTimeoutSeconds) {
+    super(uri, maxFramePayloadLength, connectionTimeout, retryDuration, idleTimeoutSeconds);
+    this.isPrivate = isPrivate;
+  }
+
   @Override
   public boolean processArrayMessageSeparately() {
     return false;

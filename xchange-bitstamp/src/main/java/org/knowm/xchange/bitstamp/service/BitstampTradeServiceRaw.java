@@ -10,8 +10,8 @@ import org.knowm.xchange.bitstamp.dto.BitstampException;
 import org.knowm.xchange.bitstamp.dto.trade.BitstampOrder;
 import org.knowm.xchange.bitstamp.dto.trade.BitstampOrderStatusResponse;
 import org.knowm.xchange.bitstamp.dto.trade.BitstampUserTransaction;
-import org.knowm.xchange.client.ExchangeRestProxyBuilder;
 import org.knowm.xchange.currency.CurrencyPair;
+import si.mazi.rescu.RestProxyFactory;
 import si.mazi.rescu.SynchronizedValueFactory;
 
 /**
@@ -29,13 +29,15 @@ public class BitstampTradeServiceRaw extends BitstampBaseService {
 
     super(exchange);
     this.bitstampAuthenticated =
-        ExchangeRestProxyBuilder.forInterface(
-                BitstampAuthenticated.class, exchange.getExchangeSpecification())
-            .build();
+        RestProxyFactory.createProxy(
+            BitstampAuthenticated.class,
+            exchange.getExchangeSpecification().getSslUri(),
+            getClientConfig());
     this.bitstampAuthenticatedV2 =
-        ExchangeRestProxyBuilder.forInterface(
-                BitstampAuthenticatedV2.class, exchange.getExchangeSpecification())
-            .build();
+        RestProxyFactory.createProxy(
+            BitstampAuthenticatedV2.class,
+            exchange.getExchangeSpecification().getSslUri(),
+            getClientConfig());
     this.apiKey = exchange.getExchangeSpecification().getApiKey();
     this.nonceFactory = exchange.getNonceFactory();
     this.signatureCreator =
@@ -143,7 +145,7 @@ public class BitstampTradeServiceRaw extends BitstampBaseService {
       Long offset,
       String sort,
       Long sinceTimestamp,
-      String sinceId)
+      Long sinceId)
       throws IOException {
     try {
       return bitstampAuthenticatedV2.getUserTransactions(
@@ -162,7 +164,7 @@ public class BitstampTradeServiceRaw extends BitstampBaseService {
   }
 
   public BitstampUserTransaction[] getBitstampUserTransactions(
-      Long numberOfTransactions, Long offset, String sort, Long sinceTimestamp, String sinceId)
+      Long numberOfTransactions, Long offset, String sort, Long sinceTimestamp, Long sinceId)
       throws IOException {
     try {
       return bitstampAuthenticatedV2.getUserTransactions(
