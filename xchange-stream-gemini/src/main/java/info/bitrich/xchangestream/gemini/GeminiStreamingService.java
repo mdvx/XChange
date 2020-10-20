@@ -5,8 +5,8 @@ import info.bitrich.xchangestream.service.netty.ConnectionStateModel.State;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +21,8 @@ public class GeminiStreamingService {
   private final String baseUri;
 
   private final Map<CurrencyPair, GeminiProductStreamingService> productStreamingServices =
-      new ConcurrentHashMap<>();
-  private final Map<CurrencyPair, Observable<JsonNode>> productSubscriptions =
-      new ConcurrentHashMap<>();
+      new HashMap<>();
+  private final Map<CurrencyPair, Observable<JsonNode>> productSubscriptions = new HashMap<>();
 
   private final Subject<State> stateSubject = BehaviorSubject.create();
 
@@ -42,7 +41,9 @@ public class GeminiStreamingService {
       productStreamingServices.put(currencyPair, productStreamingService);
       productSubscriptions.put(currencyPair, productSubscription);
 
-      productStreamingService.subscribeConnectionState().subscribe(stateSubject);
+      productStreamingService
+          .subscribeConnectionState()
+          .subscribe(stateSubject);
     }
 
     return productSubscriptions.get(currencyPair);
