@@ -24,12 +24,29 @@ import org.knowm.xchange.Exchange;
 import org.knowm.xchange.coinmate.CoinmateAdapters;
 import org.knowm.xchange.coinmate.CoinmateException;
 import org.knowm.xchange.coinmate.CoinmateUtils;
-import org.knowm.xchange.coinmate.dto.trade.*;
+import org.knowm.xchange.coinmate.dto.trade.CoinmateCancelOrderResponse;
+import org.knowm.xchange.coinmate.dto.trade.CoinmateOpenOrders;
+import org.knowm.xchange.coinmate.dto.trade.CoinmateOrderFlags;
+import org.knowm.xchange.coinmate.dto.trade.CoinmateOrders;
+import org.knowm.xchange.coinmate.dto.trade.CoinmateReplaceResponse;
+import org.knowm.xchange.coinmate.dto.trade.CoinmateTradeHistory;
+import org.knowm.xchange.coinmate.dto.trade.CoinmateTradeResponse;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
-import org.knowm.xchange.dto.trade.*;
+import org.knowm.xchange.dto.trade.LimitOrder;
+import org.knowm.xchange.dto.trade.MarketOrder;
+import org.knowm.xchange.dto.trade.OpenOrders;
+import org.knowm.xchange.dto.trade.StopOrder;
+import org.knowm.xchange.dto.trade.UserTrades;
 import org.knowm.xchange.service.trade.TradeService;
-import org.knowm.xchange.service.trade.params.*;
+import org.knowm.xchange.service.trade.params.CancelOrderByIdParams;
+import org.knowm.xchange.service.trade.params.CancelOrderParams;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrencyPair;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamLimit;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamOffset;
+import org.knowm.xchange.service.trade.params.TradeHistoryParams;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamsIdSpan;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamsSorted;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
 import org.knowm.xchange.service.trade.params.orders.OrderQueryParams;
@@ -207,7 +224,10 @@ public class CoinmateTradeService extends CoinmateTradeServiceRaw implements Tra
 
     CoinmateTradeHistory coinmateTradeHistory =
         getCoinmateTradeHistory(
-            CoinmateUtils.getPair(currencyPair), limit, CoinmateAdapters.adaptSortOrder(order), startId);
+            CoinmateUtils.getPair(currencyPair),
+            limit,
+            CoinmateAdapters.adaptSortOrder(order),
+            startId);
     return CoinmateAdapters.adaptTradeHistory(coinmateTradeHistory);
   }
 
@@ -259,7 +279,10 @@ public class CoinmateTradeService extends CoinmateTradeServiceRaw implements Tra
   }
 
   public static class CoinmateTradeHistoryHistoryParams
-      implements TradeHistoryParamOffset, TradeHistoryParamLimit, TradeHistoryParamsSorted, TradeHistoryParamsIdSpan {
+      implements TradeHistoryParamOffset,
+      TradeHistoryParamLimit,
+      TradeHistoryParamsSorted,
+      TradeHistoryParamsIdSpan {
 
     private Integer limit;
     private Long offset;
@@ -314,7 +337,6 @@ public class CoinmateTradeService extends CoinmateTradeServiceRaw implements Tra
     @Override
     public void setStartId(String startId) {
       this.startId = startId;
-
     }
 
     @Override
@@ -325,7 +347,6 @@ public class CoinmateTradeService extends CoinmateTradeServiceRaw implements Tra
     @Override
     public void setEndId(String endId) {
       throw new UnsupportedOperationException("Coinmate doesn't support start id.");
-
     }
   }
 }

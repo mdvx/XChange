@@ -42,9 +42,7 @@ public class GeminiStreamingService {
       productStreamingServices.put(currencyPair, productStreamingService);
       productSubscriptions.put(currencyPair, productSubscription);
 
-      productStreamingService
-          .subscribeConnectionState()
-          .subscribe(stateSubject);
+      productStreamingService.subscribeConnectionState().subscribe(stateSubject);
     }
 
     return productSubscriptions.get(currencyPair);
