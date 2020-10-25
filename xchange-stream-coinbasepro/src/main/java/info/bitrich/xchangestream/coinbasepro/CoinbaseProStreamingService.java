@@ -157,9 +157,7 @@ public class CoinbaseProStreamingService extends JsonNettyStreamingService {
   @Override
   protected void handleChannelMessage(String channel, JsonNode message) {
     if (SHARE_CHANNEL_NAME.equals(channel)) {
-      channels
-          .forEach((k, v) ->
-              v.getEmitter().onNext(message));
+      channels.forEach((k, v) -> v.getEmitter().onNext(message));
 
     } else {
       super.handleChannelMessage(channel, message);

@@ -399,16 +399,16 @@ public abstract class NettyStreamingService<T> extends ConnectableService {
           if (webSocketChannel == null || !webSocketChannel.isOpen()) {
             e.onError(new NotConnectedException());
           }
-              channels.computeIfAbsent(
-                  channelId,
-                  cid -> {
-                    Subscription newSubscription = new Subscription(e, channelName, args);
-                    try {
-                      sendMessage(getSubscribeMessage(channelName, args));
-                    } catch (
-                        Exception
-                            throwable) { // if getSubscribeMessage throws this, it is because it
-                      // needs to report
+          channels.computeIfAbsent(
+              channelId,
+              cid -> {
+                Subscription newSubscription = new Subscription(e, channelName, args);
+                try {
+                  sendMessage(getSubscribeMessage(channelName, args));
+                } catch (
+                    Exception
+                        throwable) { // if getSubscribeMessage throws this, it is because it
+                  // needs to report
                       e.onError(throwable); // a problem creating the message
                     }
                     return newSubscription;
@@ -480,17 +480,17 @@ public abstract class NettyStreamingService<T> extends ConnectableService {
   }
 
   protected void handleChannelMessage(String channel, T message) {
-      NettyStreamingService<T>.Subscription subscription = channels.get(channel);
-      if (subscription == null) {
-        LOG.debug("Channel has been closed {}.", channel);
-        return;
-      }
-      ObservableEmitter<T> emitter = subscription.emitter;
-      if (emitter == null) {
-        LOG.debug("No subscriber for channel {}.", channel);
-        return;
-      }
-      emitter.onNext(message);
+    NettyStreamingService<T>.Subscription subscription = channels.get(channel);
+    if (subscription == null) {
+      LOG.debug("Channel has been closed {}.", channel);
+      return;
+    }
+    ObservableEmitter<T> emitter = subscription.emitter;
+    if (emitter == null) {
+      LOG.debug("No subscriber for channel {}.", channel);
+      return;
+    }
+    emitter.onNext(message);
   }
 
   protected void handleChannelError(String channel, Throwable t) {
