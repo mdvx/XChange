@@ -27,16 +27,6 @@ public class BinanceStreamingService extends JsonNettyStreamingService {
   }
 
   @Override
-  public void messageHandler(String message) {
-    super.messageHandler(message);
-  }
-
-  @Override
-  protected void handleMessage(JsonNode message) {
-    super.handleMessage(message);
-  }
-
-  @Override
   protected String getChannelNameFromMessage(JsonNode message) throws IOException {
     return message.get("stream").asText();
   }

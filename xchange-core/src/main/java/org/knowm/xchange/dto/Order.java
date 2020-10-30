@@ -228,7 +228,11 @@ public abstract class Order implements Serializable {
    *     <p>use {@link #getInstrument()} instead
    */
   @Deprecated
+  @JsonIgnore
   public CurrencyPair getCurrencyPair() {
+    if (instrument == null) {
+      return null;
+    }
     if (!(instrument instanceof CurrencyPair)) {
       throw new IllegalStateException(
           "The instrument of this order is not a currency pair: " + instrument);
@@ -360,11 +364,8 @@ public abstract class Order implements Serializable {
     if ((this.id == null) ? (other.id != null) : !this.id.equals(other.id)) {
       return false;
     }
-    if (this.timestamp != other.timestamp
-        && (this.timestamp == null || !this.timestamp.equals(other.timestamp))) {
-      return false;
-    }
-    return true;
+    return this.timestamp == other.timestamp
+        || (this.timestamp != null && this.timestamp.equals(other.timestamp));
   }
 
   public enum OrderType {

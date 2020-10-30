@@ -7,7 +7,14 @@ import info.bitrich.xchangestream.kraken.dto.KrakenOwnTrade;
 import info.bitrich.xchangestream.kraken.dto.enums.KrakenSubscriptionName;
 import info.bitrich.xchangestream.service.netty.StreamingObjectMapperHelper;
 import io.reactivex.Observable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.trade.LimitOrder;
@@ -190,7 +197,9 @@ public class KrakenStreamingTradeService implements StreamingTradeService {
         CurrencyPair currencyPair = new CurrencyPair(dto.pair);
         result.add(
             new UserTrade.Builder()
-                .id(dto.postxid)
+                .id(
+                    tradeId) // The tradeId should be the key of the map, postxid can be null and is
+                // not unique as required for a tradeId
                 .orderId(dto.ordertxid)
                 .currencyPair(currencyPair)
                 .timestamp(dto.time == null ? null : new Date((long) (dto.time * 1000L)))

@@ -2,18 +2,26 @@ package org.knowm.xchange.huobi.service;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.IOrderFlags;
-import org.knowm.xchange.dto.trade.*;
+import org.knowm.xchange.dto.trade.LimitOrder;
+import org.knowm.xchange.dto.trade.MarketOrder;
+import org.knowm.xchange.dto.trade.OpenOrders;
+import org.knowm.xchange.dto.trade.StopOrder;
+import org.knowm.xchange.dto.trade.UserTrades;
 import org.knowm.xchange.huobi.HuobiAdapters;
 import org.knowm.xchange.huobi.dto.trade.HuobiOrder;
 import org.knowm.xchange.service.trade.TradeService;
 import org.knowm.xchange.service.trade.params.CancelOrderByIdParams;
 import org.knowm.xchange.service.trade.params.CancelOrderParams;
 import org.knowm.xchange.service.trade.params.CurrencyPairParam;
-import org.knowm.xchange.service.trade.params.DefaultTradeHistoryParamCurrencyPair;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamsIdSpan;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamsTimeSpan;
 import org.knowm.xchange.service.trade.params.orders.DefaultOpenOrdersParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
 
@@ -28,9 +36,30 @@ public class HuobiTradeService extends HuobiTradeServiceRaw implements TradeServ
   /** Huobi trade history only goes back 48h - a new API was promised in 2019-Q1 */
   @Override
   public UserTrades getTradeHistory(TradeHistoryParams tradeHistoryParams) throws IOException {
-    if (!(tradeHistoryParams instanceof CurrencyPairParam)) throw new IllegalArgumentException();
+    CurrencyPair currencyPair = null;
+    if (tradeHistoryParams instanceof TradeHistoryParamCurrencyPair) {
+      currencyPair = ((TradeHistoryParamCurrencyPair) tradeHistoryParams).getCurrencyPair();
+    }
+    if (currencyPair == null) {
+      throw new IllegalArgumentException("Currency pair is required.");
+    }
+    Date startDate;
+    Date endDate;
+    if (tradeHistoryParams instanceof TradeHistoryParamsTimeSpan) {
+      startDate = ((TradeHistoryParamsTimeSpan) tradeHistoryParams).getStartTime();
+      endDate = ((TradeHistoryParamsTimeSpan) tradeHistoryParams).getEndTime();
+    } else {
+      startDate = null;
+      endDate = null;
+    }
+    String startId;
+    if (tradeHistoryParams instanceof TradeHistoryParamsIdSpan) {
+      startId = ((TradeHistoryParamsIdSpan) tradeHistoryParams).getStartId();
+    } else {
+      startId = null;
+    }
 
-    HuobiOrder[] openOrders = getHuobiTradeHistory((CurrencyPairParam) tradeHistoryParams);
+    HuobiOrder[] openOrders = getHuobiTradeHistory(currencyPair, startDate, endDate, startId);
     return HuobiAdapters.adaptTradeHistory(openOrders);
   }
 
@@ -46,7 +75,7 @@ public class HuobiTradeService extends HuobiTradeServiceRaw implements TradeServ
 
   @Override
   public TradeHistoryParams createTradeHistoryParams() {
-    return new DefaultTradeHistoryParamCurrencyPair();
+    return new HuobiTradeHistoryParams();
   }
 
   @Override

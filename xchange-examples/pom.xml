@@ -76,10 +76,10 @@
 		</dependency>
 		<!-- XChange Bittrex exchange support -->
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>xchange-bittrexV3</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>xchange-bittrex</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 		<!-- XChange CampBX exchange support -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>

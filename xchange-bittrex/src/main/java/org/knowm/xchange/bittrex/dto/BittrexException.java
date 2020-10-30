@@ -3,18 +3,30 @@ package org.knowm.xchange.bittrex.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import si.mazi.rescu.HttpStatusExceptionSupport;
 
-/** @author walec51 */
+/**
+ * @author walec51
+ */
 public class BittrexException extends HttpStatusExceptionSupport {
 
-  @JsonProperty("message")
-  private String message;
+  @JsonProperty
+  private String code;
 
-  @Override
-  public String getMessage() {
-    return message;
+  @JsonProperty
+  private String details;
+
+  public String getCode() {
+    return code;
   }
 
-  public void setMessage(String message) {
-    this.message = message;
+  public void setCode(String code) {
+    this.code = code;
+  }
+
+  public String getDetails() {
+    return details;
+  }
+
+  public void setDetails(String details) {
+    this.details = details;
   }
 }

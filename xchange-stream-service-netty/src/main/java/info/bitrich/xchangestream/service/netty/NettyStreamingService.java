@@ -21,7 +21,6 @@ import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.http.websocketx.extensions.WebSocketClientExtensionHandler;
@@ -88,6 +87,7 @@ public abstract class NettyStreamingService<T> extends ConnectableService {
   private volatile NioEventLoopGroup eventLoopGroup;
   protected final Map<String, Subscription> channels = new ConcurrentHashMap<>();
   private boolean compressedMessages = false;
+
   private final Subject<Throwable> reconnFailEmitters = PublishSubject.create();
   private final Subject<Object> connectionSuccessEmitters = PublishSubject.create();
   private final Subject<Object> disconnectEmitters = PublishSubject.create();
@@ -339,14 +339,7 @@ public abstract class NettyStreamingService<T> extends ConnectableService {
   public String getSubscriptionUniqueId(String channelName, Object... args) {
     return channelName;
   }
-  /**
-   * Some exchanges rate limit messages sent to the socket (Kraken), by default this method does not
-   * rateLimit the messages sent out. Override this method to provide a rateLimiter, and call
-   * acquire on the rate limiter, to slow down out going messages.
-   */
-  protected void sendMessageRateLimiterAcquire() {
-    // no rate limiter by default
-  }
+
   /**
    * Handler that receives incoming messages.
    *
@@ -366,11 +359,8 @@ public abstract class NettyStreamingService<T> extends ConnectableService {
       LOG.warn("Cannot send data to WebSocket as it is not writable.");
       return;
     }
-
     if (message != null) {
-      sendMessageRateLimiterAcquire();
-      WebSocketFrame frame = new TextWebSocketFrame(message);
-      webSocketChannel.writeAndFlush(frame);
+      webSocketChannel.writeAndFlush(new TextWebSocketFrame(message));
     }
   }
 
@@ -480,6 +470,10 @@ public abstract class NettyStreamingService<T> extends ConnectableService {
   }
 
   protected void handleChannelMessage(String channel, T message) {
+    if (channel == null) {
+      LOG.debug("Channel provided is null");
+      return;
+    }
     NettyStreamingService<T>.Subscription subscription = channels.get(channel);
     if (subscription == null) {
       LOG.debug("Channel has been closed {}.", channel);
@@ -519,6 +513,7 @@ public abstract class NettyStreamingService<T> extends ConnectableService {
   }
 
   protected class NettyWebSocketClientHandler extends WebSocketClientHandler {
+
     protected NettyWebSocketClientHandler(
         WebSocketClientHandshaker handshaker, WebSocketMessageHandler handler) {
       super(handshaker, handler);
@@ -531,7 +526,7 @@ public abstract class NettyStreamingService<T> extends ConnectableService {
       } else {
         super.channelInactive(ctx);
         disconnectEmitters.onNext(new Object());
-        LOG.info("Reopening websocket because it was closed");
+        LOG.info("Reopening Websocket Client because it was closed! {}", ctx.channel());
         scheduleReconnect();
       }
     }
