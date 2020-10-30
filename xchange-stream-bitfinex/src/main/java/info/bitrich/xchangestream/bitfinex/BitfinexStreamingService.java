@@ -25,12 +25,12 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import javax.crypto.Mac;
@@ -84,7 +84,7 @@ public class BitfinexStreamingService extends JsonNettyStreamingService {
   private String apiKey;
   private String apiSecret;
 
-  private final Map<String, String> subscribedChannels = new ConcurrentHashMap<>();
+  private final Map<String, String> subscribedChannels = new HashMap<>();
   private final SynchronizedValueFactory<Long> nonceFactory;
 
   private final BlockingQueue<String> calculationQueue = new LinkedBlockingQueue<>();
@@ -127,7 +127,7 @@ public class BitfinexStreamingService extends JsonNettyStreamingService {
   }
 
   @Override
-  public boolean processArrayMessageSeparately() {
+  protected boolean processArrayMessagesSeparately() {
     return false;
   }
 

@@ -29,8 +29,13 @@ public abstract class JsonNettyStreamingService extends NettyStreamingService<Js
     super(apiUrl, maxFramePayloadLength, connectionTimeout, retryDuration, idleTimeoutSeconds);
   }
 
-  public boolean processArrayMessageSeparately() {
+  @Deprecated // (since = "5.0.4-SNAPSHOT",forRemoval = true)
+  protected boolean processArrayMassageSeparately() {
     return true;
+  }
+
+  protected boolean processArrayMessagesSeparately() {
+    return processArrayMassageSeparately();
   }
 
   @Override
@@ -46,7 +51,7 @@ public abstract class JsonNettyStreamingService extends NettyStreamingService<Js
       return;
     }
 
-    if (processArrayMessageSeparately() && jsonNode.isArray()) {
+    if (processArrayMessagesSeparately() && jsonNode.isArray()) {
       // In case of array - handle every message separately.
       for (JsonNode node : jsonNode) {
         handleMessage(node);
