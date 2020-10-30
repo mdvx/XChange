@@ -71,7 +71,7 @@ public class PoloniexStreamingService extends JsonNettyStreamingService {
   }
 
   @Override
-  protected boolean processArrayMessagesSeparately() {
+  public boolean processArrayMassageSeparately() {
     return false;
   }
 
