@@ -60,7 +60,7 @@ public class KrakenStreamingService extends JsonNettyStreamingService {
   }
 
   @Override
-  public boolean processArrayMassageSeparately() {
+  protected boolean processArrayMessagesSeparately() {
     return false;
   }
 
