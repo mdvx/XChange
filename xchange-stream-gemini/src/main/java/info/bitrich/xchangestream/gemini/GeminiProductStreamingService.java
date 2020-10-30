@@ -24,7 +24,7 @@ public class GeminiProductStreamingService extends JsonNettyStreamingService {
   }
 
   @Override
-  protected boolean processArrayMessagesSeparately() {
+  public boolean processArrayMassageSeparately() {
     return false;
   }
 
