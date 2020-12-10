@@ -2,6 +2,7 @@ package org.knowm.xchange.bitstamp.dto.trade;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -12,6 +13,7 @@ import org.knowm.xchange.bitstamp.BitstampUtils;
 import org.knowm.xchange.currency.Currency;
 
 /** @author Matija Mazi */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class BitstampUserTransaction {
 
   private final Date datetime;
